@@ -1,7 +1,9 @@
-PUT http://localhost:3003/api/blogs/64e1e990cd2c72183a663b54
+PUT http://localhost:3003/api/blogs/5a422bc61b54a676234d17fc
 Content-Type: application/json
 
 { 
-	"content":"hello today", 
-	"important": false
+	"title":"updated title", 
+	"author": "Robert C. Martin",
+	"url":"http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
+	"likes":3
 }

@@ -6,11 +6,7 @@ const Blog = require('../models/blog')
 
 beforeEach(async () => {	// initial setting the DB before each test
 	await Blog.deleteMany({})
-
-	const blogObjects = helper.initialBlogs
-   	.map(blog => new Blog(blog))
-	const promiseArray = blogObjects.map(blog => blog.save())
-	await Promise.all(promiseArray)
+	await Blog.insertMany(helper.initialBlogs)
 })
 
 const api = supertest(app)
@@ -79,7 +75,41 @@ test('4.12 400 Bad Request if title or url properties are missing', async () => 
 	const blogsAtEnd = await helper.blogsInDb()
 
 	expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+})
 
+test('4.13 succeeds with status code 204 if id is valid', async () => {
+	const blogsAtStart = await helper.blogsInDb()
+	const blogToDelete = blogsAtStart[0]
+
+	await api
+	.delete(`/api/blogs/${blogToDelete.id}`)
+	.expect(204)
+
+	const blogsAtEnd = await helper.blogsInDb()
+	expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1)
+
+	const titles = blogsAtEnd.map(r => r.title)
+	expect(titles).not.toContain(blogToDelete.title)
+})
+
+test('4.14 updating a blog', async () => {
+	const blogsAtStart = await helper.blogsInDb()
+	const blogToUpdate = blogsAtStart[0]
+	const newLikes = blogToUpdate.likes+1
+	const newContent = {
+		title: blogToUpdate.title,
+		author: blogToUpdate.author,
+		url: blogToUpdate.url,
+		likes: newLikes,
+	}
+
+	await api
+			.put(`/api/blogs/${blogToUpdate.id}`)
+			.send(newContent)
+
+	const blogsAtEnd = await helper.blogsInDb()
+	const thisBlog = blogsAtEnd.find(x=>x.id===blogToUpdate.id)
+	expect(thisBlog.likes).toEqual(newLikes)
 })
 
  
