@@ -2,8 +2,7 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-	"title": "JEST", 
-	"author": "Meta Platforms",
-	"url":"https://jestjs.io/",
-	"likes":4
+	"title": "Umum!", 
+	"author": "Yes station",
+	"url":"https://yes.io/"
 }
