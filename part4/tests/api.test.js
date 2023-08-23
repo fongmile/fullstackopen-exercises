@@ -3,13 +3,35 @@ const supertest = require('supertest')
 const helper = require('./test_helper')
 const app = require('../app')
 const Blog = require('../models/blog')
+const bcrypt = require('bcrypt')
+const Bloguser = require('../models/bloguser')
 
 beforeEach(async () => {	// initial setting the DB before each test
 	await Blog.deleteMany({})
 	await Blog.insertMany(helper.initialBlogs)
+
+	const initUsers = await Promise.all(helper.dummyUsers.map(async (x) => {
+		const saltRounds = 10
+		const passwordHash = await bcrypt.hash(x.password, saltRounds)
+
+		const thisUser = {
+			_id: new mongoose.mongo.ObjectId(x.id),
+			username: x.username,
+			name: x.name,
+			passwordHash: passwordHash,
+			blogs: [],
+			__v: 0
+		}
+
+		return thisUser;
+	}))
+
+	await Bloguser.deleteMany({})
+	await Bloguser.insertMany(initUsers)
 })
 
 const api = supertest(app)
+
 
 test('4.8 blogs are returned as json', async () => {
 	await api
@@ -110,6 +132,51 @@ test('4.14 updating a blog', async () => {
 	const blogsAtEnd = await helper.blogsInDb()
 	const thisBlog = blogsAtEnd.find(x=>x.id===blogToUpdate.id)
 	expect(thisBlog.likes).toEqual(newLikes)
+})
+
+
+describe('4.16 User creation', () => {
+	test('creation fails with proper statuscode and message if username already taken', async () => {
+		const usersAtStart = await helper.blogusersInDb()
+
+		const testUser = {
+			username: helper.dummyUsers[0].username,
+			name: 'Superuser',
+			password: '112233',
+		}
+
+		const result = await api
+				.post('/api/blogusers')
+				.send(testUser)
+				.expect(400)
+				.expect('Content-Type', /application\/json/)
+
+		expect(result.body.error).toContain('expected `username` to be unique')
+
+		const usersAtEnd = await helper.blogusersInDb()
+		expect(usersAtEnd).toEqual(usersAtStart)
+	})
+
+	test('creation fails with proper statuscode and message if password is less than 3 characters', async () => {
+		const usersAtStart = await helper.blogusersInDb()
+
+		const testUser = {
+			username: 'testuser',
+			name: 'Hello',
+			password: '1',
+		}
+
+		const result = await api
+				.post('/api/blogusers')
+				.send(testUser)
+				.expect(400)
+				.expect('Content-Type', /application\/json/)
+
+		expect(result.body.error).toContain('password must be at least 3 characters')
+
+		const usersAtEnd = await helper.blogusersInDb()
+		expect(usersAtEnd).toEqual(usersAtStart)
+	})
 })
 
  
