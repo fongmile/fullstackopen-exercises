@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs 
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBva2kiLCJpZCI6IjU2Y2I5MWJkYzM0NjRmMTA0ODU5MzRjYSIsImlhdCI6MTY5MjgzNDg2MX0.-_fuLzh1bXPyswp5W8N-6H4_bSoMdRtdjkABJDwWwEw
+
+{
+	"title": "FESTA ITALIANA 2023", 
+	"author": "MANCHESTER",
+	"url":"https://festaitalianauk.com/"
+}

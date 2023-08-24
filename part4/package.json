@@ -12,7 +12,8 @@
 		"logs:prod": "fly logs",
 		"lint": "eslint .",
 		"test": "cross-env NODE_ENV=test jest --verbose --runInBand",
-		"test-api": "npm test -- api.test.js"
+		"test-api": "npm test -- api.test.js",
+		"test-api-token": "npm test -- api.token.test.js"
 	},
 	"author": "",
 	"license": "ISC",
