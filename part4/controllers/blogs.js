@@ -1,6 +1,6 @@
+const middleware = require('../utils/middleware')
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
-const Bloguser = require('../models/bloguser')
 
 blogsRouter.get('/', async (request, response) => {
 	const blogs = await Blog
@@ -9,9 +9,11 @@ blogsRouter.get('/', async (request, response) => {
 	response.json(blogs)
 })
 
-blogsRouter.post('/', async (request, response) => {
+
+blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
 	const blog = new Blog(request.body)
-	const user = await Bloguser.findOne({})
+	const user = request.user
+
 	blog.bloguser = user.id
 
 	const savedBlog = await blog.save()
@@ -20,9 +22,25 @@ blogsRouter.post('/', async (request, response) => {
 	response.status(201).json(savedBlog)
 }) 
 
-blogsRouter.delete('/:id', async (request, response) => {
+blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) => {
+	const blog = await Blog.findById(request.params.id)
+	const user = request.user
+
+	if(!blog)	{
+		response.status(401).json({ error: 'blog already deleted from server' })
+	}
+	
+	if(blog.bloguser.toString() !== user.id.toString())	{
+		response.status(401).json({ error: 'invalid user' })
+	}	
+
+	const newBlogs = user.blogs.filter((x) => x.toString()!==blog.id);
+	user.blogs = newBlogs;
+	
 	await Blog.findByIdAndRemove(request.params.id)
+	await user.save()
 	response.status(204).end()
+
 })
 
 blogsRouter.put('/:id', async (request, response) => {
