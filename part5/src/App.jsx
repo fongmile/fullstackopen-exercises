@@ -12,8 +12,8 @@ const App = () => {
 	const [username, setUsername] = useState('')
 	const [password, setPassword] = useState('')
 	const [user, setUser] = useState(null)
-	const [notification, setNotification] = useState(null);
-	const [notificationType, setNotificationType] = useState('');
+	const [notification, setNotification] = useState(null)
+	const [notificationType, setNotificationType] = useState('')
 
 	const blogFormRef = useRef()
 
@@ -56,7 +56,7 @@ const App = () => {
 			setUsername('')
 			setPassword('')
 		} catch (error) {
-			showNotification(`Wrong username or password`, 'error')
+			showNotification('Wrong username or password', 'error')
 		}
 	}
 
@@ -107,7 +107,7 @@ const App = () => {
 												username: blog.username,
 												name: blog.name
 											}
-			const newBlogs = blogs.map(x => x.id===retuenedBlog.id?retuenedBlog:x);
+			const newBlogs = blogs.map(x => x.id===retuenedBlog.id?retuenedBlog:x)
 			setBlogs(newBlogs)
 
 			showNotification(`liked "${blogToUpdate.title}"`, 'success')
@@ -130,7 +130,7 @@ const App = () => {
 				const res = await blogService.deleteBlog(blog.id)
 
 				if(res.status===204)	{
-					const newBlogs = blogs.filter((x)=>x.id!==blog.id)
+					const newBlogs = blogs.filter((x) => x.id!==blog.id)
 					setBlogs(newBlogs)
 					showNotification(`blog '${blog.title}' by ${blog.author} removed`, 'success')
 				}
@@ -160,7 +160,7 @@ const App = () => {
 					passwordChangeHandler={({ target }) => setPassword(target.value)}
 					formHandler={handleLogin}
 					/>
-				 </div>
+				</div>
 			} 
 
 			{user && <div>
@@ -168,7 +168,7 @@ const App = () => {
 							<Notification message={notification} type={notificationType}  />
 							<p>
 								<b>{user.name}</b> logged in 
-								<button onClick={()=>handleLogout()}>logout</button>
+								<button onClick={() => handleLogout()}>logout</button>
 							</p>
 
 							<Togglable buttonLabel="new blog" ref={blogFormRef} >
@@ -179,7 +179,7 @@ const App = () => {
 							<br/>
 							{
 								blogToDisplay.map(blog =>
-									<Blog key={blog.id} blog={blog} thisUser={user} likeHandler={()=>{likeBlog(blog)}} removeHandler={()=>{removeBlog(blog)}} />
+									<Blog key={blog.id} blog={blog} thisUser={user} likeHandler={() => {likeBlog(blog)}} removeHandler={() => {removeBlog(blog)}} />
 								)
 							}
 						</div>

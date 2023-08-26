@@ -1,12 +1,14 @@
+import PropTypes from 'prop-types'
+
 const BlogForm = ({ formHandler }) => {
 	
 	const addBlog = async (event) => {
 		event.preventDefault()
 
 		const response = await formHandler({
-			"title": event.target.title.value, 
-			"author": event.target.author.value,
-			"url":event.target.url.value
+			'title': event.target.title.value,
+			'author': event.target.author.value,
+			'url':event.target.url.value
 		})
 
 		if(response)	{
@@ -36,6 +38,10 @@ const BlogForm = ({ formHandler }) => {
 			</form>
 		</div>
 	)
+}
+
+BlogForm.propTypes = {
+	formHandler: PropTypes.func.isRequired,
 }
 
 export default BlogForm
