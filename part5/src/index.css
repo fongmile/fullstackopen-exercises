@@ -1,3 +1,4 @@
+* {box-sizing: border-box;}
 .notification {
 	color: green;
 	background: lightgrey;
@@ -10,4 +11,19 @@
 
 .notification.error {
 	color:red;
+}
+
+.blog {
+	margin:8px auto;
+	border:1px solid #AAA;
+	border-radius:4px;
+	padding:8px;
+}
+.titleline {
+	padding-right:100px;
+	position:relative;
+}
+.titleline button {
+	position:absolute;
+	right:2px;
 }
