@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
 import LoginForm from './components/LoginForm'
+import Togglable from './components/Togglable'
 import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -13,6 +14,8 @@ const App = () => {
 	const [user, setUser] = useState(null)
 	const [notification, setNotification] = useState(null);
 	const [notificationType, setNotificationType] = useState('');
+
+	const blogFormRef = useRef()
 
 	useEffect(() => {
 		blogService.getAll().then(blogs =>
@@ -32,7 +35,7 @@ const App = () => {
 	const showNotification = (message,type) => {
 		setNotification(message)
 		setNotificationType(type)
-		console.log(type, message);
+		console.log(`Notification [${type}]: `, message)
 		setTimeout(() => {
 			setNotification(null)
 			setNotificationType('')
@@ -63,37 +66,86 @@ const App = () => {
 		setUser(null)
 	}
 
-	const createNewBlog = async (event) => {
-		event.preventDefault()
-
-		const title = event.target.title.value
-		const author = event.target.author.value
-		const url = event.target.url.value
-
+	const createNewBlog = async (newblog) => {
 		try {
-			const newblog = {
-				"title": title, 
-				"author": author,
-				"url":url
-			}
-
 			const retuenedBlog = await blogService.create(newblog)
-			setBlogs(blogs.concat(retuenedBlog))
-			showNotification(`a new blog "${title}" added`, 'success')
 
-			event.target.title.value = ''
-			event.target.author.value = ''
-			event.target.url.value = ''
+			retuenedBlog.bloguser = {
+												username: user.username,
+												name: user.name
+											}
+			setBlogs(blogs.concat(retuenedBlog))
+
+			showNotification(`a new blog "${newblog.title}" added`, 'success')
+			blogFormRef.current.toggleVisibility()
+
+			return true
 
 		} catch (error) {
-			if(!error.response.data.error)	{
+			if(!error.response || !error.response.data || !error.response.data.error)	{
 				showNotification(error.message, 'error')
 			}	else {
 				showNotification(error.response.data.error, 'error')
 			}
-			
+			return false
 		}
 	}
+
+	const likeBlog = async (blog) => {
+		const blogToUpdate = {
+			likes: blog.likes+1,
+			title: blog.title,
+			author: blog.author,
+			url: blog.url,
+			bloguser: blog.bloguser.id,
+		}
+
+		try {
+			const retuenedBlog = await blogService.update(blog.id, blogToUpdate)
+
+			retuenedBlog.bloguser = {
+												username: blog.username,
+												name: blog.name
+											}
+			const newBlogs = blogs.map(x => x.id===retuenedBlog.id?retuenedBlog:x);
+			setBlogs(newBlogs)
+
+			showNotification(`liked "${blogToUpdate.title}"`, 'success')
+			return true
+
+		} catch (error) {
+			if(!error.response || !error.response.data || !error.response.data.error)	{
+				showNotification(error.message, 'error')
+			}	else {
+				showNotification(error.response.data.error, 'error')
+			}
+			return false
+		}
+	}
+
+	const removeBlog = async (blog) => {
+		
+		if(window.confirm(`Remove blog '${blog.title}' by ${blog.author}`))	{
+			try {
+				const res = await blogService.deleteBlog(blog.id)
+
+				if(res.status===204)	{
+					const newBlogs = blogs.filter((x)=>x.id!==blog.id)
+					setBlogs(newBlogs)
+					showNotification(`blog '${blog.title}' by ${blog.author} removed`, 'success')
+				}
+			} catch (error) {
+				if(!error.response || !error.response.data || !error.response.data.error)	{
+					showNotification(error.message, 'error')
+				}	else {
+					showNotification(error.response.data.error, 'error')
+				}
+			}
+		}	
+		
+	}
+
+	const blogToDisplay = blogs.sort((a,b) => a.likes > b.likes ? -1:1)
 
 	return (
 		<div>
@@ -119,12 +171,15 @@ const App = () => {
 								<button onClick={()=>handleLogout()}>logout</button>
 							</p>
 
-							<BlogForm formHandler={createNewBlog} />
+							<Togglable buttonLabel="new blog" ref={blogFormRef} >
+								<BlogForm formHandler={createNewBlog}  />
+							</Togglable>
+
 
 							<br/>
 							{
-								blogs.map(blog =>
-									<Blog key={blog.id} blog={blog} />
+								blogToDisplay.map(blog =>
+									<Blog key={blog.id} blog={blog} thisUser={user} likeHandler={()=>{likeBlog(blog)}} removeHandler={()=>{removeBlog(blog)}} />
 								)
 							}
 						</div>
