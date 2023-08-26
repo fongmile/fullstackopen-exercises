@@ -1,20 +1,24 @@
 import PropTypes from 'prop-types'
+import {useRef} from 'react'
 
 const BlogForm = ({ formHandler }) => {
+	const titleRef = useRef(null)
+	const authorRef = useRef(null)
+	const urlRef = useRef(null)
 	
 	const addBlog = async (event) => {
 		event.preventDefault()
 
 		const response = await formHandler({
-			'title': event.target.title.value,
-			'author': event.target.author.value,
-			'url':event.target.url.value
+			'title': titleRef.current.value,
+			'author': authorRef.current.value,
+			'url':urlRef.current.value
 		})
 
 		if(response)	{
-			event.target.title.value = ''
-			event.target.author.value = ''
-			event.target.url.value = ''
+			titleRef.current.value = ''
+			authorRef.current.value = ''
+			urlRef.current.value = ''
 		}
 	}
 	
@@ -24,17 +28,17 @@ const BlogForm = ({ formHandler }) => {
 			<form onSubmit={addBlog}>
 				<div>
 					title:
-					<input type='text' name='title' />
+					<input type='text' name='title' placeholder='title' ref={titleRef} />
 				</div>
 				<div>
 					author:
-					<input type='text' name='author' />
+					<input type='text' name='author' placeholder='author' ref={authorRef} />
 				</div>
 				<div>
 					url:
-					<input type='text' name='url' />
+					<input type='text' name='url' placeholder='url' ref={urlRef} />
 				</div>
-				<div><button >create</button></div>
+				<div><button className='createBtn'>create</button></div>
 			</form>
 		</div>
 	)
