@@ -22,38 +22,51 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
 	response.status(201).json(savedBlog)
 }) 
 
-blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) => {
+blogsRouter.delete('/:id', middleware.userExtractor, async (request, response, next) => {
 	const blog = await Blog.findById(request.params.id)
 	const user = request.user
+	let okToDelete = true
+
+	if(!blog)	{
+		response.status(401).json({ error: 'blog already deleted from server' })
+		okToDelete = false
+	}
+	
+	if(blog.bloguser.toString() !== user.id.toString())	{
+		response.status(401).json({ error: 'invalid user' })
+		okToDelete = false
+	}	
+	if(okToDelete)	{
+		console.log('01', blog);
+		console.log('02', user);
+		const newBlogs = user.blogs.filter((x) => x.toString()!==blog.id);
+		user.blogs = newBlogs;
+		
+		await Blog.findByIdAndRemove(request.params.id)
+		await user.save()
+		response.status(204).end()
+	}
+
+})
+
+blogsRouter.put('/:id', async (request, response) => {
+	const blog = await Blog.findById(request.params.id)
 
 	if(!blog)	{
 		response.status(401).json({ error: 'blog already deleted from server' })
 	}
 	
-	if(blog.bloguser.toString() !== user.id.toString())	{
-		response.status(401).json({ error: 'invalid user' })
-	}	
-
-	const newBlogs = user.blogs.filter((x) => x.toString()!==blog.id);
-	user.blogs = newBlogs;
-	
-	await Blog.findByIdAndRemove(request.params.id)
-	await user.save()
-	response.status(204).end()
-
-})
-
-blogsRouter.put('/:id', async (request, response) => {
 	const body = request.body
 
-	const blog = {
+	const blogToUpdate = {
 		title: body.title,
 		author: body.author,
 		url: body.url,
 		likes: body.likes,
+		bloguser: body.bloguser,
 	}
 
-	const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
+	const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blogToUpdate, { new: true })
 	response.json(updatedBlog)
 })
 

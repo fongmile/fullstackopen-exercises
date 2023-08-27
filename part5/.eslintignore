@@ -3,3 +3,4 @@ dist
 build
 .eslintrc.cjs
 vite.config.js
+cypress.config
