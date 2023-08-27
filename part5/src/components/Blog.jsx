@@ -10,7 +10,7 @@ const Blog = ({ blog, thisUser, likeHandler, removeHandler }) => {
 			return null
 		}
 		return (
-			<div><button onClick={removeHandler}>remove</button></div>
+			<div><button className='removeBtn' onClick={removeHandler}>remove</button></div>
 		)
 	}
 
@@ -23,8 +23,8 @@ const Blog = ({ blog, thisUser, likeHandler, removeHandler }) => {
 			</div>
 			<div className='blog-detail' style={detailStyle}>
 				<div><a href={blog.url}>{blog.url}</a></div>
-				<div>likes: {blog.likes} <button className='toggleLike' onClick={likeHandler}>like</button></div>
-				<div>{blog.bloguser.name}</div>
+				<div>likes: <span className='likesNumber'>{blog.likes}</span> <button className='toggleLike' onClick={likeHandler}>like</button></div>
+				<div className='creator'>{blog.bloguser.name}</div>
 				{showRemoveButton()}
 			</div>
 		</div>
