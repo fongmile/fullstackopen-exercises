@@ -1,15 +1,18 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import blogService from '../services/blogs'
 import { useNotify } from '../contexts/NotificationContext'
+
+import Togglable from '../components/Togglable'
 
 const BlogForm = ({ createBlog }) => {
 	const [title, setTitle] = useState('')
 	const [author, setAuthor] = useState('')
 	const [url, setUrl] = useState('')
 
+	const blogFormRef = useRef()
 	const notifyWith = useNotify()
-
+	
 	const newblogMutation = useMutation(blogService.create, {
 		onSettled: (data) => {
 			if(data.error)	{
@@ -17,6 +20,10 @@ const BlogForm = ({ createBlog }) => {
 			}	else {
 				notifyWith({message: `A new blog '${data.title}' by '${data.author}' added`})
 				createBlog()
+				setTitle('')
+				setAuthor('')
+				setUrl('')
+				blogFormRef.current.toggleVisibility()
 			}
 		}
 	})
@@ -25,13 +32,10 @@ const BlogForm = ({ createBlog }) => {
 		event.preventDefault()
 		const newBlog = { title, author, url }
 		newblogMutation.mutate(newBlog)
-		setTitle('')
-		setAuthor('')
-		setUrl('')
 	}
 
 	return (
-		<div>
+		<Togglable buttonLabel='create new' ref={blogFormRef}>
 			<h4>Create a new blog</h4>
 
 			<form onSubmit={handleSubmit}>
@@ -64,7 +68,7 @@ const BlogForm = ({ createBlog }) => {
 				</div>
 				<button type="submit">create</button>
 			</form>
-		</div>
+		</Togglable>
 	)
 }
 

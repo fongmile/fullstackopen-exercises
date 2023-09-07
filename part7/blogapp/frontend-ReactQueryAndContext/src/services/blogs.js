@@ -20,9 +20,14 @@ const update = async (object) => {
 	const request = await axios.put(`${baseUrl}/${object.id}`, object, { headers })
 	return request.data
 }
+const comment = async (object) => {
+	const comments = {comments: object.comments}
+	const request = await axios.put(`${baseUrl}/${object.id}/comments`, comments, { headers })
+	return request.data
+}
 
 const remove = async (id) => {
 	await axios.delete(`${baseUrl}/${id}`, { headers })
 }
 
-export default { getAll, create, update, remove }
+export default { getAll, create, update, comment, remove }

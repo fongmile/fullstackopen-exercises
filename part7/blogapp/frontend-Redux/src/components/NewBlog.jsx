@@ -26,12 +26,12 @@ const BlogForm = () => {
 	}
 
 	return (
-		<Togglable buttonLabel='new note' ref={blogFormRef}>
+		<Togglable buttonLabel='create new' ref={blogFormRef}>
 			<h4>Create a new blog</h4>
 
-			<form onSubmit={handleSubmit}>
+			<form className='create-form' onSubmit={handleSubmit}>
 				<div>
-					title
+					<label htmlFor='title'>title</label>
 					<input
 						id='title'
 						placeholder='title'
@@ -40,7 +40,7 @@ const BlogForm = () => {
 					/>
 				</div>
 				<div>
-					author
+					<label htmlFor='author'>author</label>
 					<input
 						id='author'
 						placeholder='author'
@@ -49,7 +49,7 @@ const BlogForm = () => {
 					/>
 				</div>
 				<div>
-					url
+					<label htmlFor='url'>url</label>
 					<input
 						id='url'
 						placeholder='url'

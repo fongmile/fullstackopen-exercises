@@ -15,10 +15,10 @@ const UserLoggedIn = () => {
 	}
 
 	return (
-		<div>
-			{user.name} logged in
+		<span className='userinfo'>
+			<span>{user.name} logged in</span>
 			<button onClick={logout}>logout</button>
-		</div>
+		</span>
 	)
 }
 

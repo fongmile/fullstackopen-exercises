@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { setUser } from './reducers/userReducer'
@@ -7,10 +8,10 @@ import { initializeBlogs } from './reducers/blogReducer'
 import storageService from './services/storage'
 
 import BlogList from './components/Blog'
+import Users from './components/User'
 import LoginForm from './components/Login'
-import UserLoggedIn from './components/UserLoggedIn'
-import NewBlog from './components/NewBlog'
 import Notification from './components/Notification'
+import Menu from './components/Menu'
 
 const App = () => {
 
@@ -37,11 +38,20 @@ const App = () => {
 
 	return (
 		<div>
-			<h2>blogs</h2>
-			<Notification  />
-			<UserLoggedIn />
-			<NewBlog />
-			<BlogList />
+			<Router>
+				<Menu />
+				
+				<h1>blog app</h1>
+				<Notification />				
+
+				<Routes>
+					<Route path="/" element={<BlogList />} />
+					<Route path="/blogs/:id" element={<BlogList />} />
+					<Route path="/users/" element={<Users />} />
+					<Route path="/users/:id" element={<Users />} />
+				</Routes>
+				
+			</Router>
 		</div>
 	)
 }
